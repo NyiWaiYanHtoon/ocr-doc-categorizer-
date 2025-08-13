@@ -5,11 +5,13 @@ import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 
 type DocumentCropperProps = {
-  onReadContent?: (croppedImage: string) => void;
+  readTesseract?: (croppedImage: string) => void;
+  readOcrSpace?:  (selectedFile: File | null) => void;
 };
 
 export default function DocumentCropper({
-  onReadContent,
+  readTesseract,
+  readOcrSpace
 }: DocumentCropperProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [originalImage, setOriginalImage] = useState<string | null>(null);
@@ -24,10 +26,12 @@ export default function DocumentCropper({
   });
   const inputRef = useRef<HTMLInputElement>(null);
   const [imgObj, setImgObj] = useState<HTMLImageElement | null>(null);
+  const [file, setFile] = useState<File| null>(null)
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setFile(file);
 
     if (file.type.startsWith("image/")) {
       const reader = new FileReader();
@@ -37,10 +41,6 @@ export default function DocumentCropper({
         setOriginalImage(src);
       };
       reader.readAsDataURL(file);
-    } else if (file.type === "application/pdf") {
-      alert("PDF support not implemented yet.");
-    } else {
-      alert("Unsupported file type. Please upload an image or PDF.");
     }
   };
 
@@ -135,30 +135,46 @@ const handleMouseMove = (e: React.MouseEvent) => {
 
   const resetImage = () => {
     setImageSrc(originalImage);
+    if(readTesseract) readTesseract("");
   };
 
   const handleRemove = () => {
     setImageSrc(null);
     setImgObj(null);
     setOriginalImage(null);
+    setFile(null);
+    if(readTesseract) readTesseract("");
+    if(readOcrSpace) readOcrSpace(null)
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const handleReadContent = () => {
-    if (imageSrc && onReadContent) {
-      onReadContent(imageSrc);
+  const handleReadImageContent = () => {
+    if (imageSrc && readTesseract) {
+      readTesseract(imageSrc);
     }
   };
+
+  const handleReadFileContent = () => {
+    if(file && readOcrSpace) {
+      readOcrSpace(file)
+    }
+  }
 
   return (
     <div className="p-6 space-y-4">
       <Input
         ref={inputRef}
         type="file"
-        accept="image/*,application/pdf"
+        accept="image/*,application/pdf,"
         onChange={handleFile}
         className="inline-block w-auto"
       />
+      <div className="mt-4 flex gap-2 flex-wrap">
+          <Button onClick={handleReadFileContent}>Read Document</Button>
+          <Button variant="outline" onClick={handleRemove}>
+              Remove
+          </Button>
+      </div>
       {imageSrc && (
         <>
           <canvas
@@ -183,7 +199,7 @@ const handleMouseMove = (e: React.MouseEvent) => {
           )}
           {imageSrc != originalImage && (
             <div className="mt-t flex gap-2 flex-wrap">
-              <Button onClick={handleReadContent}>Read Content</Button>
+              <Button onClick={handleReadImageContent}>Read Image Content</Button>
               <Button onClick={resetImage} variant="outline">
                 Crop Again
               </Button>
