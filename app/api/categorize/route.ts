@@ -22,7 +22,7 @@ When given OCR-extracted content, your job is to:
 4. Do not paraphase or change any text from original OCR-extracted content.
 5. Correct only spacing, punctuation, and grammar to improve readability, but preserve the meaning of the text.
 6. Include **all** content from the OCR in one of the sections (do not drop anything).
-7. Return **only** the formatted string. Do NOT include any preamble, commentary, or phrases such as "Here is the organized content" or "The formatted content is as follows."`,
+7. Output **only** the formatted string. Do NOT include any other text in the output!`,
           },
           { role: "user", content: ocrText },
         ],
