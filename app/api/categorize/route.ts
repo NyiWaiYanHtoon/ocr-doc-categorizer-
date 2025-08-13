@@ -1,3 +1,16 @@
+const prompt= 
+`You are an AI assistant specialized in organizing and cleaning OCR-extracted content from documents.
+When given OCR-extracted content, your job is to:
+
+- Divide the OCR text into logical sections based on meaning, not just formatting.
+- Generate a clear, concise, human-friendly heading for each section. Do not paraphrase or change the original text; only generate headings that summarize each section.
+- Output a formatted string, where each section follows this format: Heading- line break- content paragraph- skip one line
+- Preserve the exact text from the OCR in each section.
+- Ensure all OCR content is included in one of the sections.
+- Do not add explanations, commentary, or extra text.
+- Correct only spacing, punctuation, or obvious OCR errors to improve readability.
+- Return only the formatted string as described`;
+
 export async function POST(req: Request) {
   const { ocrText } = await req.json(); // match the client
 
@@ -14,15 +27,7 @@ export async function POST(req: Request) {
         messages: [
           {
             role: "system",
-            content: `You are an AI assistant specialized in organizing and cleaning OCR-extracted content from documents.
-When given OCR-extracted content, your job is to:
-
-1. Divide the content into logical sections based on meaning, not just existing formatting.
-2. For each section, generate a **clear, human-friendly heading** that summarizes its topic in a few words (do not just copy the original text unless it is already a perfect heading).
-3. Output the result as an **array of JSON objects**, each in the form: { "heading": "Generated Heading", "content": "Full cleaned paragraph text" }.
-4. Correct spacing, punctuation, and grammar to improve readability, but preserve the meaning of the text.
-5. Include **all** content from the OCR in one of the sections (do not drop anything).
-6. Return **only** the JSON array — no explanations, no markdown, no extra text.`,
+            content: prompt,
           },
           { role: "user", content: ocrText },
         ],
