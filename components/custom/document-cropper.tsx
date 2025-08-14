@@ -32,8 +32,8 @@ export default function DocumentCropper({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setFile(file);
     if (file.type === "application/pdf") {
-      setFile(file);
       setImageSrc("");
       setOriginalImage("");
       setImgObj(null);

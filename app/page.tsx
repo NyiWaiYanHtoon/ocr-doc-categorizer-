@@ -28,26 +28,35 @@ const Page: React.FC = () => {
   };
 
   const recognizeWithOCRSpace = async (selectedFile: File | null) => {
-    if (!selectedFile) return;
-    try {
-      setOcrText("Processing OCR...");
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("apikey", process.env.NEXT_PUBLIC_OCRSPACE_API_KEY!);
-      formData.append("language", "eng");
+  if (!selectedFile) return;
 
-      const res = await fetch("https://api.ocr.space/parse/image", {
-        method: "POST",
-        body: formData,
-      });
+  try {
+    setOcrText("Processing OCR...");
 
-      const data = await res.json();
-      setOcrText(data.ParsedResults?.[0]?.ParsedText || "File is too large. Please upload a smaller file.");
-    } catch (err) {
-      console.error(err);
-      setOcrText("Error reading text with OCR.space");
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    const res = await fetch("/api/ocr", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      setOcrText("Error: Unable to process OCR");
+      return;
     }
-  };
+
+    const data = await res.json();
+    console.log("OCR Data:", data);
+    const result = data.ParsedResults?.[0]?.ParsedText ||
+        "File is too large or unreadable. Please try a smaller file.";
+    setOcrText(result);
+    
+  } catch (err) {
+    console.error(err);
+    setOcrText("Error reading text");
+  }
+};
 
   const handleTesseractREad = (image: string) => {
     setCroppedImage(image);
