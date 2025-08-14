@@ -42,8 +42,7 @@ const Page: React.FC = () => {
       });
 
       const data = await res.json();
-      setOcrText(data.ParsedResults?.[0]?.ParsedText || "");
-      console.log("OCR.space result:", data);
+      setOcrText(data.ParsedResults?.[0]?.ParsedText || "File is too large. Please upload a smaller file.");
     } catch (err) {
       console.error(err);
       setOcrText("Error reading text with OCR.space");
@@ -143,7 +142,7 @@ const Page: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow flex flex-col h-[80vh] border border-gray-300">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-bold">Categorized Content</h2>
-            <Button onClick={handleCopy}>
+            <Button onClick={handleCopy} className="cursor-pointer">
               <CopyIcon className="w-5 h-5" />
             </Button>
           </div>

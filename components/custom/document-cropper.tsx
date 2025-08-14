@@ -31,7 +31,13 @@ export default function DocumentCropper({
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setFile(file);
+
+    if (file.type === "application/pdf") {
+      setFile(file);
+      setImageSrc("");
+      setOriginalImage("");
+      setImgObj(null);
+    }
 
     if (file.type.startsWith("image/")) {
       const reader = new FileReader();
@@ -169,12 +175,17 @@ const handleMouseMove = (e: React.MouseEvent) => {
         onChange={handleFile}
         className="inline-block w-auto"
       />
-      <div className="mt-4 flex gap-2 flex-wrap">
-          <Button onClick={handleReadFileContent}>Read Document</Button>
+      {
+        file &&
+        <div className="mt-4 flex gap-2 flex-wrap">
+          <Button onClick={handleReadFileContent}>
+            Quick Scan (Online)
+          </Button>
           <Button variant="outline" onClick={handleRemove}>
               Remove
           </Button>
-      </div>
+        </div>
+      }
       {imageSrc && (
         <>
           <canvas
@@ -199,7 +210,7 @@ const handleMouseMove = (e: React.MouseEvent) => {
           )}
           {imageSrc != originalImage && (
             <div className="mt-t flex gap-2 flex-wrap">
-              <Button onClick={handleReadImageContent}>Read Image Content</Button>
+              <Button onClick={handleReadImageContent}>Private Scan</Button>
               <Button onClick={resetImage} variant="outline">
                 Crop Again
               </Button>
