@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import DocumentCropper from "@/components/custom/document-cropper";
 import { Button } from "@/components/shadcn/button";
 import { Textarea } from "@/components/shadcn/textarea";
-import { CopyIcon } from "lucide-react";
+import { CheckIcon, CopyIcon } from "lucide-react";
 import Tesseract from "tesseract.js";
 
 const Page: React.FC = () => {
@@ -13,6 +13,7 @@ const Page: React.FC = () => {
   const [categorizedContent, setCategorizedContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [file, setFile] = useState<File | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const recognizeWithTesseract = async (image: string) => {
     try {
@@ -28,35 +29,35 @@ const Page: React.FC = () => {
   };
 
   const recognizeWithOCRSpace = async (selectedFile: File | null) => {
-  if (!selectedFile) return;
+    if (!selectedFile) return;
 
-  try {
-    setOcrText("Processing OCR...");
+    try {
+      setOcrText("Processing OCR...");
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
+      const formData = new FormData();
+      formData.append("file", selectedFile);
 
-    const res = await fetch("/api/ocr", {
-      method: "POST",
-      body: formData,
-    });
+      const res = await fetch("/api/ocr", {
+        method: "POST",
+        body: formData,
+      });
 
-    if (!res.ok) {
-      setOcrText("Error: Unable to process OCR");
-      return;
+      if (!res.ok) {
+        setOcrText("Error: Unable to process OCR");
+        return;
+      }
+
+      const data = await res.json();
+      console.log("OCR Data:", data);
+      const result =
+        data.ParsedResults?.[0]?.ParsedText ||
+        "Couldn't read. Please try a smaller file.";
+      setOcrText(result);
+    } catch (err) {
+      console.error(err);
+      setOcrText("Error reading text");
     }
-
-    const data = await res.json();
-    console.log("OCR Data:", data);
-    const result = data.ParsedResults?.[0]?.ParsedText ||
-        "File is too large or unreadable. Please try a smaller file.";
-    setOcrText(result);
-    
-  } catch (err) {
-    console.error(err);
-    setOcrText("Error reading text");
-  }
-};
+  };
 
   const handleTesseractREad = (image: string) => {
     setCroppedImage(image);
@@ -114,8 +115,10 @@ const Page: React.FC = () => {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(categorizedContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy content:", err);
+      console.error("Failed to copy:", err);
     }
   };
 
@@ -152,7 +155,15 @@ const Page: React.FC = () => {
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-bold">Categorized Content</h2>
             <Button onClick={handleCopy} className="cursor-pointer">
-              <CopyIcon className="w-5 h-5" />
+              {copied ? (
+                <>
+                  <CheckIcon className="w-5 h-5" /> Copied
+                </>
+              ) : (
+                <>
+                  <CopyIcon className="w-5 h-5" /> Copy
+                </>
+              )}
             </Button>
           </div>
           <Textarea

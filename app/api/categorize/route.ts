@@ -21,6 +21,8 @@ export async function POST(req: Request) {
                           <Heading>
                           <Content paragraph>
                           <skip one line>
+eg.Heading
+This is the content in this heading
                           3. In case of error, output this string "Please try again with a sharper image or clearer text."
                           4. Do not paraphase or change any text from original OCR-extracted content. Correct only spacing, punctuation, and grammar to improve readability, but preserve the meaning of the text.
                           5. Output **only** the formatted string or the error string. Do NOT include any other text in the output!`,
